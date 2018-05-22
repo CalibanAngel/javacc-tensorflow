@@ -1,0 +1,41 @@
+options{  static = true;}PARSER_BEGIN(TenserFlowParser)package parser;
+
+public class TenserFlowParser{  public static void main(String args []) throws ParseException  {    TenserFlowParser parser = new TenserFlowParser(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter an expression :");      try      {        parser.reshape();      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        TenserFlowParser.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(TenserFlowParser)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN :{
+  < ARRAY: "[" (((< VAR_NAME > | < SIGNED_NUMBER >) ",")* (< VAR_NAME > | < SIGNED_NUMBER >))? "]" >
+| < VAR_NAME: < WORD > (< DIGIT >)? >
+}
+< FUNC_NAME > TOKEN :
+{
+  < RESHAPE: "reshape" >
+| < VARIABLE: "variable" >
+| < CONV: "conv" >
+| < ADD: "add" >
+| < RELU: "relu" >
+| < MAX_POOL: "max_pool" >
+}
+< DEFAULT > TOKEN :{
+  < WORD: (< ALPHA >)+ >
+| < NUMBER: (< DIGIT >)+ >
+| < SIGNED_NUMBER: "-" < NUMBER > >
+| < ALPHA: [ "a"-"z", "A"-"Z" ] >
+| < DIGIT : [ "0"-"9" ] >
+| < END_LINE: ";" >}
+
+void start() :
+{ Token t; }{
+  "graph" < ARRAY > "(" < VAR_NAME > ")" "->" "(" < VAR_NAME > ")"   
+}
+
+void reshape() :{ Token t; }{  < VAR_NAME > "=" < RESHAPE > "(" < VAR_NAME > "," < ARRAY > ")" < END_LINE >}void variable() :{ Token t; }{
+  < VAR_NAME > "=" < VARIABLE > "(" < ARRAY > ")" < END_LINE >}void conv() :{ Token t; }{
+  < VAR_NAME > "=" < CONV > "(" < VAR_NAME > ")" < END_LINE >}void add() :{ Token t; }{
+  < VAR_NAME > "=" < ADD > "(" < VAR_NAME > "," < VAR_NAME > ")" < END_LINE >
+}void relu() :{ Token t; }{
+ < VAR_NAME > "=" < VAR_NAME > "="  < RELU > "(" < VAR_NAME > ")" < END_LINE >
+}
+
+void max_pool() :
+{ Token t; }
+{
+  < VAR_NAME > "=" < MAX_POOL > "(" < VAR_NAME > ")" < END_LINE >
+}
