@@ -1,3 +1,7 @@
+# JetBrain
+.idea
+*.iml
+
 # Eclipse
 .classpath
 .project
