@@ -1,7 +1,7 @@
 options{  static = true;}PARSER_BEGIN(TenserFlowParser)package parser;
 
-public class TenserFlowParser{  public static void main(String args []) throws ParseException  {    TenserFlowParser parser = new TenserFlowParser(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter an expression :");      try      {        parser.reshape();      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        TenserFlowParser.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(TenserFlowParser)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN :{
-  < ARRAY: "[" (((< VAR_NAME > | < SIGNED_NUMBER >) ",")* (< VAR_NAME > | < SIGNED_NUMBER >))? "]" >
+public class TenserFlowParser{  public static void main(String args []) throws ParseException  {    TenserFlowParser parser = new TenserFlowParser(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter an expression :");      try      {        parser.start();      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        TenserFlowParser.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(TenserFlowParser)SKIP :{  < (" " | "\t" | "\n" | "\r")+ >  {    System.err.println("Skipping");  }}TOKEN :{
+  < ARRAY: "[" ((< VAR_NAME > | < SIGNED_NUMBER >) ("," (< VAR_NAME > | < SIGNED_NUMBER >))*)? "]" >
 | < VAR_NAME: < WORD > (< DIGIT >)? >
 }
 < FUNC_NAME > TOKEN :
@@ -11,7 +11,7 @@ public class TenserFlowParser{  public static void main(String args []) throws
 | < CONV: "conv" >
 | < ADD: "add" >
 | < RELU: "relu" >
-| < MAX_POOL: "max_pool" >
+| < MAX_POOL: "max_pool" >| < GRAPH: "graph" >
 }
 < DEFAULT > TOKEN :{
   < WORD: (< ALPHA >)+ >
@@ -23,7 +23,7 @@ public class TenserFlowParser{  public static void main(String args []) throws
 
 void start() :
 { Token t; }{
-  "graph" < ARRAY > "(" < VAR_NAME > ")" "->" "(" < VAR_NAME > ")"   
+  < GRAPH > < NUMBER > "(" < VAR_NAME > ")" "->" "(" < VAR_NAME > ")"   
 }
 
 void reshape() :{ Token t; }{  < VAR_NAME > "=" < RESHAPE > "(" < VAR_NAME > "," < ARRAY > ")" < END_LINE >}void variable() :{ Token t; }{
@@ -31,7 +31,7 @@ void reshape() :{ Token t; }{  < VAR_NAME > "=" < RESHAPE > "(" < VAR_NAME > 
   < VAR_NAME > "=" < CONV > "(" < VAR_NAME > ")" < END_LINE >}void add() :{ Token t; }{
   < VAR_NAME > "=" < ADD > "(" < VAR_NAME > "," < VAR_NAME > ")" < END_LINE >
 }void relu() :{ Token t; }{
- < VAR_NAME > "=" < VAR_NAME > "="  < RELU > "(" < VAR_NAME > ")" < END_LINE >
+ < VAR_NAME > "=" < RELU > "(" < VAR_NAME > ")" < END_LINE >
 }
 
 void max_pool() :
